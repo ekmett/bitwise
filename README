@@ -1,8 +1,8 @@
 Interactive interpreted usage without having installed first
 requires adding a search path for the respective environment:
 
-  hugs -98 -P:hugs98
-  ghci-7.0.4 -ighc70
-  ghci-7.4.1 -ighc74
+  hugs -98 -P:src:hugs98
+  ghci-7.0.4 -isrc:ghc70
+  ghci-7.4.1 -isrc:ghc74
 
 ghc < 7 has not been tested, reports welcome.
