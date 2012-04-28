@@ -8,14 +8,15 @@ Maintainer  :  claudiusmaximus@goto10.org
 Stability   :  unstable
 Portability :  portable
 
-Lifting boolean operations to bitwise operations.
+Lifting boolean operations on 'Bool' to bitwise operations on 'Bits'.
 
 Packing bits into words, and unpacking words into bits.
 
 -}
 module Data.Bits.Bitwise
+  (
   -- * Boolean operations lifted to bitwise operations.
-  ( repeat
+    repeat
   , map
   , zipWith
   , or
@@ -23,17 +24,17 @@ module Data.Bits.Bitwise
   , any
   , all
   , isUniform
-  -- * Splitting/joining 'Bits' to/from (lsb, msb).
+  -- * Splitting\/joining 'Bits' to\/from (lsb, msb).
   , mask
   , splitAt
   , joinAt
   , fromBool
-  -- * (Un)packing 'Bits' to/from lists of 'Bool'.
+  -- * (Un)packing 'Bits' to\/from lists of 'Bool'.
   , fromListLE
   , toListLE
   , fromListBE
   , toListBE
-  -- * (Un)packing 'Word8' to/from 8-tuples of 'Bool'.
+  -- * (Un)packing 'Word8' to\/from 8-tuples of 'Bool'.
   , packWord8LE
   , unpackWord8LE
   , packWord8BE
@@ -55,7 +56,7 @@ repeat True = complement 0
 
 -- | Lift a unary boolean operation to a bitwise operation.
 --
---   The implementation is by exhaustive input/output case analysis:
+--   The implementation is by exhaustive input\/output case analysis:
 --   thus the operation provided must be total.
 --
 {-# INLINE map #-}
@@ -68,7 +69,7 @@ map f = case (f False, f True) of
 
 -- | Lift a binary boolean operation to a bitwise operation.
 --
---   The implementation is by exhaustive input/output case analysis:
+--   The implementation is by exhaustive input\/output case analysis:
 --   thus the operation provided must be total.
 --
 {-# INLINE zipWith #-}
@@ -170,7 +171,7 @@ fromBool True  = bit 0
 
 -- | Convert a little-endian list of bits to 'Bits'.
 {-# INLINE fromListLE #-}
-fromListLE :: Bits b => [Bool] {- ^ [least significant bit, ..., most significant bit] -} -> b
+fromListLE :: Bits b => [Bool] {- ^ \[least significant bit, ..., most significant bit\] -} -> b
 fromListLE = foldr f 0
   where
     f b i = fromBool b .|. (i `shiftL` 1)
@@ -178,12 +179,12 @@ fromListLE = foldr f 0
 -- | Convert a 'Bits' (with a defined 'bitSize') to a list of bits, in
 --   little-endian order.
 {-# INLINE toListLE #-}
-toListLE :: Bits b => b -> [Bool] {- ^ [least significant bit, ..., most significant bit] -}
+toListLE :: Bits b => b -> [Bool] {- ^ \[least significant bit, ..., most significant bit\] -}
 toListLE b = P.map (testBit b) [0 .. bitSize b - 1]
 
 -- | Convert a big-endian list of bits to 'Bits'.
 {-# INLINE fromListBE #-}
-fromListBE :: Bits b => [Bool] {- ^ [most significant bit, ..., least significant bit] -} -> b
+fromListBE :: Bits b => [Bool] {- ^ \[most significant bit, ..., least significant bit\] -} -> b
 fromListBE = foldl' f 0
   where
     f i b = (i `shiftL` 1) .|. fromBool b
@@ -191,5 +192,5 @@ fromListBE = foldl' f 0
 -- | Convert a 'Bits' (with a defined 'bitSize') to a list of bits, in
 --   big-endian order.
 {-# INLINE toListBE #-}
-toListBE :: Bits b => b -> [Bool] {- ^ [most significant bit, ..., least significant bit] -}
+toListBE :: Bits b => b -> [Bool] {- ^ \[most significant bit, ..., least significant bit\] -}
 toListBE b = P.map (testBit b) [bitSize b - 1, bitSize b - 2 .. 0]

@@ -10,19 +10,21 @@ Maintainer  :  claudiusmaximus@goto10.org
 Stability   :  unstable
 Portability :  portable
 
-Encode and decode both versions (binary "P4" and plain "P1") of PBM: the
+Encode and decode both versions (binary P4 and plain P1) of PBM: the
 portable bitmap lowest common denominator monochrome image file format.
 
 References:
 
-  * pbm(5) <http://netpbm.sourceforge.net/doc/pbm.html>
+  * pbm(5)
+
+  * The PBM Format <http://netpbm.sourceforge.net/doc/pbm.html>
 
 Bugs:
 
   * This implementation is not fully compliant with the PBM specification,
-    with respect to point 8 in the reference above which states that
+    with respect to point 8 in the second reference above which states that
     /a comment can actually be in the middle of what you might consider a token/
-    Such a "pathological" PBM file might be rejected by 'decodePBM', but
+    Such a pathological PBM file might be rejected by 'decodePBM', but
     may instead be wrongly decoded if (for example) the comment were in
     the middle of the image width token, leading to it being interpreted
     as a (smaller) width and height.
@@ -62,13 +64,13 @@ import Data.Array.BitArray.ByteString (toByteString, fromByteString)
 --   and the second in X, with lowest coordinates at the top left).
 --
 --   False pixels are white, True pixels are black.  Pixels to the
---   right of 'pbmWidth' are "don't care" padding bits.  However, these
+--   right of 'pbmWidth' are don't care padding bits.  However, these
 --   padding bits are likely to invalidate aggregrate 'BitArray.fold'
 --   operations.  See 'trimPBM'.
 --
 data PBM = PBM{ pbmWidth :: !Int, pbmPixels :: !(BitArray (Int, Int)) }
 
--- | Encode a binary PBM ("P4") image, padding rows to multiples of 8
+-- | Encode a binary PBM (P4) image, padding rows to multiples of 8
 --   bits as necessary.
 --
 encodePBM :: BitArray (Int, Int) {- ^ pixels -} -> BS.ByteString
@@ -86,7 +88,7 @@ data EncodeError
   | BadSmallWidth{ encErrPBM :: PBM } -- ^ image width is too smaller than array width
   | BadLargeWidth{ encErrPBM :: PBM } -- ^ image width is larger than array width
 
--- | Encode a plain PBM ("P1") image.
+-- | Encode a plain PBM (P1) image.
 --
 --   No restrictions on pixels array size, but the file format is
 --   exceedingly wasteful of space.
@@ -105,7 +107,7 @@ encodePlainPBM pixels = unlines (header : raster)
     chunk _ [] = []
     chunk n xs = let (ys, zs) = splitAt n xs in ys : chunk n zs
 
--- | Encode a pre-padded 'PBM' to a binary PBM ("P4") image.
+-- | Encode a pre-padded 'PBM' to a binary PBM (P4) image.
 --
 --   The pixels array must have a multiple of 8 bits per row.  The image
 --   width may be less than the pixel array width, with up to 7 padding
@@ -138,7 +140,7 @@ data DecodeError a
   | BadPixels a -- ^ There weren't enough bytes of pixel data.
   deriving (Eq, Ord, Read, Show)
 
--- | Decode a binary PBM ("P4") image.
+-- | Decode a binary PBM (P4) image.
 decodePBM :: BS.ByteString -> Either (DecodeError BS.ByteString) (PBM, BS.ByteString)
 decodePBM s =                    case BSC.uncons s of
   Just (cP, s) | cP == char 'P' -> case BSC.uncons s of
@@ -180,7 +182,7 @@ decodePBM s =                    case BSC.uncons s of
     char = toEnum . fromEnum
     unchar = toEnum . fromEnum
 
--- | Decode a sequence of binary PBM ("P4") images.
+-- | Decode a sequence of binary PBM (P4) images.
 --
 --   Keeps decoding until end of input (in which case the 'snd' of the
 --   result is 'Nothing') or an error occurred.
@@ -194,7 +196,7 @@ decodePBMs s
   where
     prepend pbm (pbms, merr) = (pbm:pbms, merr)
 
--- | Decode a plain PBM ("P1") image.
+-- | Decode a plain PBM (P1) image.
 --
 --   Note that the pixel array size is kept as-is (with the width not
 --   necessarily a multiple of 8 bits).
@@ -236,7 +238,7 @@ decodePlainPBM s = case s of
     isDigit c = c `elem` "0123456789"
 
 -- | Add padding bits at the end of each row to make the array width a
---   multiple of 8 bits, required for binary PBM ("P4") encoding.
+--   multiple of 8 bits, required for binary PBM (P4) encoding.
 --
 padPBM :: PBM -> PBM
 padPBM pbm
@@ -267,7 +269,7 @@ trimPBM pbm
     xhi' = pbmWidth pbm + xlo - 1
 
 -- | Trim then pad.  The resulting 'PBM' (if any) is suitable for
---   encoding to binary PBM ("P4"), moreover its padding bits will
+--   encoding to binary PBM (P4), moreover its padding bits will
 --   be cleared.
 repadPBM :: PBM -> Maybe PBM
 repadPBM pbm = padPBM `fmap` trimPBM pbm

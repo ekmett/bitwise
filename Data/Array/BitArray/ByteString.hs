@@ -12,8 +12,9 @@ Copy bit array data to and from ByteStrings.
 
 -}
 module Data.Array.BitArray.ByteString
+  (
   -- * Immutable copying.
-  ( toByteString
+    toByteString
   , fromByteString
   -- * Mutable copying.
   , toByteStringIO
