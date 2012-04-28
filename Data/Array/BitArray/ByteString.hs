@@ -21,17 +21,17 @@ module Data.Array.BitArray.ByteString
   ) where
 
 import Data.Bits (shiftR, (.&.))
-import Data.ByteString (ByteString, packCStringLen)
-import Data.ByteString.Unsafe (unsafeUseAsCStringLen)
+import Data.ByteString (ByteString)
 import Data.Ix (Ix, rangeSize)
 import Data.Word (Word8)
 import Control.Monad (when)
-import Foreign.ForeignPtr.Safe (withForeignPtr)
+import Foreign.ForeignPtr (withForeignPtr)
 import Foreign.Marshal.Utils (copyBytes)
 import Foreign.Ptr (castPtr)
 import Foreign.Storable (peekByteOff, pokeByteOff)
 import System.IO.Unsafe (unsafePerformIO)
 
+import Compat (packCStringLen, unsafeUseAsCStringLen)
 import Data.Bits.Bitwise (mask)
 import Data.Array.BitArray (BitArray)
 import Data.Array.BitArray.IO (IOBitArray)

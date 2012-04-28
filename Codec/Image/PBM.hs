@@ -49,9 +49,10 @@ module Codec.Image.PBM
 import Data.Bits (shiftL, shiftR, (.&.))
 import Data.Ix (range)
 import Data.Word (Word8)
-import qualified Data.ByteString as BS
 import qualified Data.Array.Unboxed as U
+import qualified Data.ByteString as BS
 
+import qualified Compat as BSC
 import Data.Bits.Bitwise (fromListBE, toListLE)
 import Data.Array.BitArray (BitArray, bounds, elems, listArray, false, (//), assocs, ixmap)
 import Data.Array.BitArray.ByteString (toByteString, fromByteString)
@@ -139,8 +140,8 @@ data DecodeError a
 
 -- | Decode a binary PBM ("P4") image.
 decodePBM :: BS.ByteString -> Either (DecodeError BS.ByteString) (PBM, BS.ByteString)
-decodePBM s =                    case BS.uncons s of
-  Just (cP, s) | cP == char 'P' -> case BS.uncons s of
+decodePBM s =                    case BSC.uncons s of
+  Just (cP, s) | cP == char 'P' -> case BSC.uncons s of
     Just (c4, s) | c4 == char '4' -> case int (skipSpaceComment s) of
       Just (iw, s) | iw > 0         -> case int (skipSpaceComment s) of
         Just (ih, s) | ih > 0         -> case skipSingleSpace s of
@@ -158,19 +159,19 @@ decodePBM s =                    case BS.uncons s of
     _ -> Left (BadMagicN s)
   _ -> Left (BadMagicP s)
   where
-    skipSpaceComment t = case (\t -> (t, BS.uncons t)) (BS.dropWhile isSpace t) of
-      (_, Just (cH, t)) | cH == char '#' -> case BS.uncons (BS.dropWhile (/= char '\n') t) of
+    skipSpaceComment t = case (\t -> (t, BSC.uncons t)) (BS.dropWhile isSpace t) of
+      (_, Just (cH, t)) | cH == char '#' -> case BSC.uncons (BS.dropWhile (/= char '\n') t) of
         Just (cL, t) | cL == char '\n' -> skipSpaceComment t
         _ -> Left (BadSpace t)
       (t, _) -> Right t
-    skipSingleSpace t = case BS.uncons t of
+    skipSingleSpace t = case BSC.uncons t of
       Just (cS, t) | isSpace cS -> Just t
       _ -> Nothing
     int (Left _) = Nothing
     int (Right t) = case BS.span isDigit t of
       (d, t)
         | BS.length d > 0 &&
-          fmap ((/= char '0') . fst) (BS.uncons d) == Just True -> case reads (map unchar $ BS.unpack d) of
+          fmap ((/= char '0') . fst) (BSC.uncons d) == Just True -> case reads (map unchar $ BS.unpack d) of
             [(d, "")] -> Just (d, t)
             _ -> Nothing
       _ -> Nothing

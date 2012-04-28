@@ -48,9 +48,9 @@ module Data.Array.BitArray.ST
 
 import Prelude hiding (and, or, map, zipWith)
 import Control.Monad.ST (ST)
-import Control.Monad.ST.Unsafe (unsafeIOToST)
 import Data.Ix (Ix)
 
+import Compat (unsafeIOToST)
 import Data.Array.BitArray.Internal (BitArray)
 import Data.Array.BitArray.IO (IOBitArray)
 import qualified Data.Array.BitArray.IO as IO

@@ -28,7 +28,7 @@ import Data.Bits (shiftL, shiftR)
 import Data.Ix (Ix, rangeSize)
 import Data.Word (Word64)
 import Foreign.Marshal.Utils (copyBytes)
-import Foreign.ForeignPtr.Safe (ForeignPtr, mallocForeignPtrBytes, withForeignPtr)
+import Foreign.ForeignPtr (ForeignPtr, mallocForeignPtrBytes, withForeignPtr)
 
 -- | The type of immutable bit arrays.
 newtype BitArray i = B (IOBitArray i)

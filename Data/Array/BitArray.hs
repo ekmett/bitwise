@@ -60,7 +60,7 @@ import qualified Data.Array.BitArray.ST as ST
 -- | The bounds of an array.
 {-# INLINE bounds #-}
 bounds :: Ix i => BitArray i -> (i, i)
-bounds a = runST $ ST.getBounds =<< ST.unsafeThaw a
+bounds a = runST (ST.getBounds =<< ST.unsafeThaw a)
 
 -- | Create an array from a list of (index, element) pairs.
 {-# INLINE array #-}
@@ -70,7 +70,7 @@ array bs ies = false bs // ies
 -- | Create an array from a list of elements.
 {-# INLINE listArray #-}
 listArray :: Ix i => (i, i) {- ^ bounds -} -> [Bool] {- ^ elems -} -> BitArray i
-listArray bs es = runST $ ST.unsafeFreeze =<< ST.newListArray bs es
+listArray bs es = runST (ST.unsafeFreeze =<< ST.newListArray bs es)
 
 -- | Create an array by accumulating a list of (index, operand) pairs
 --   from a default seed with an operation.
@@ -81,16 +81,16 @@ accumArray f d bs = accum f (fill bs d)
 -- | Bit array indexing.
 {-# INLINE (!) #-}
 (!) :: Ix i => BitArray i -> i -> Bool
-a ! i = runST $ do
+a ! i = runST (do
   a' <- ST.unsafeThaw a
-  ST.readArray a' i
+  ST.readArray a' i)
 
 -- | Bit array indexing without bounds checking.  Unsafe.
 {-# INLINE (!!!) #-}
 (!!!) :: Ix i => BitArray i -> i -> Bool
-a !!! i = runST $ do
+a !!! i = runST (do
   a' <- ST.unsafeThaw a
-  ST.unsafeReadArray a' i
+  ST.unsafeReadArray a' i)
 
 -- | A list of all the valid indices for this array.
 {-# INLINE indices #-}
@@ -100,7 +100,7 @@ indices = range . bounds
 -- | A list of the elements in this array.
 {-# INLINE elems #-}
 elems :: Ix i => BitArray i -> [Bool]
-elems a = runST $ ST.unsafeGetElems =<< ST.unsafeThaw a
+elems a = runST (ST.unsafeGetElems =<< ST.unsafeThaw a)
   -- P.map (a !!!) (indices a) -- very slow!
 
 -- | A list of the (index, element) pairs in this array.
@@ -116,12 +116,12 @@ ba // ies = accum (\_ a -> a) ba ies
 -- | Accumulate with an operation and a list of (index, operand).
 {-# INLINE accum #-}
 accum :: Ix i => (Bool -> a -> Bool) {- ^ operation -} -> BitArray i {- ^ source -} -> [(i, a)] {- ^ assocs -} -> BitArray i
-accum f a ies = runST $ do
+accum f a ies = runST (do
   a' <- ST.thaw a
   forM_ ies $ \(i, x) -> do
     b <- ST.readArray a' i
     ST.writeArray a' i (f b x)
-  ST.unsafeFreeze a'
+  ST.unsafeFreeze a')
 
 -- | Alias for 'map'.
 {-# INLINE amap #-}
@@ -136,7 +136,7 @@ ixmap bs h ba = array bs (P.map (\i -> (i, ba ! h i)) (range bs))
 -- | A uniform array of bits.
 {-# INLINE fill #-}
 fill :: Ix i => (i, i) {- ^ bounds -} -> Bool -> BitArray i
-fill bs b = runST $ ST.unsafeFreeze =<< ST.newArray bs b
+fill bs b = runST (ST.unsafeFreeze =<< ST.newArray bs b)
 
 -- | A uniform array of 'False'.
 {-# INLINE false #-}
@@ -158,30 +158,30 @@ b !? i
 -- | Short-circuit bitwise reduction: True if any bit is True.
 {-# INLINE or #-}
 or :: Ix i => BitArray i -> Bool
-or a = runST $ ST.or =<< ST.unsafeThaw a
+or a = runST (ST.or =<< ST.unsafeThaw a)
 
 -- | Short-circuit bitwise reduction: False if any bit is False.
 {-# INLINE and #-}
 and :: Ix i => BitArray i -> Bool
-and a = runST $ ST.and =<< ST.unsafeThaw a
+and a = runST (ST.and =<< ST.unsafeThaw a)
 
 -- | Short-circuit bitwise reduction: Nothing if any bits differ.
 {-# INLINE isUniform #-}
 isUniform :: Ix i => BitArray i -> Maybe Bool
-isUniform a = runST $ ST.isUniform =<< ST.unsafeThaw a
+isUniform a = runST (ST.isUniform =<< ST.unsafeThaw a)
 
 -- | Bitwise reduction with an associative commutative boolean operator.
 --   Implementation lifts from 'Bool' to 'Bits' and folds large chunks
 --   at a time.  Each bit is used as a source exactly once.
 {-# INLINE fold #-}
 fold :: Ix i => (Bool -> Bool -> Bool) -> BitArray i -> Maybe Bool
-fold f a = runST $ ST.fold f =<< ST.unsafeThaw a
+fold f a = runST (ST.fold f =<< ST.unsafeThaw a)
 
 -- | Bitwise map.  Implementation lifts from 'Bool' to 'Bits' and maps
 --   large chunks at a time.
 {-# INLINE map #-}
 map :: Ix i => (Bool -> Bool) -> BitArray i -> BitArray i
-map f a = runST $ ST.unsafeFreeze =<< ST.map f =<< ST.unsafeThaw a
+map f a = runST (ST.unsafeFreeze =<< ST.map f =<< ST.unsafeThaw a)
 
 -- | Bitwise zipWith.  Implementation lifts from 'Bool' to 'Bits' and
 --   combines large chunks at a time.
@@ -190,8 +190,8 @@ map f a = runST $ ST.unsafeFreeze =<< ST.map f =<< ST.unsafeThaw a
 {-# INLINE zipWith #-}
 zipWith :: Ix i => (Bool -> Bool -> Bool) -> BitArray i -> BitArray i -> BitArray i
 zipWith f a b
-  | bounds a == bounds b = runST $ do
+  | bounds a == bounds b = runST (do
       a' <- ST.unsafeThaw a
       b' <- ST.unsafeThaw b
-      ST.unsafeFreeze =<< ST.zipWith f a' b'
+      ST.unsafeFreeze =<< ST.zipWith f a' b')
   | otherwise = error "zipWith bounds mismatch"
