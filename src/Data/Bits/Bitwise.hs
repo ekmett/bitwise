@@ -50,7 +50,7 @@ import Data.Word (Word8)
 
 -- | Lift a boolean constant to a bitwise constant.
 {-# INLINE repeat #-}
-repeat :: Bits b => Bool -> b
+repeat :: (Num b, Bits b) => Bool -> b
 repeat False = 0
 repeat True = complement 0
 
@@ -60,7 +60,7 @@ repeat True = complement 0
 --   thus the operation provided must be total.
 --
 {-# INLINE map #-}
-map :: Bits b => (Bool -> Bool) {- ^ operation -} -> b -> b
+map :: (Num b, Bits b) => (Bool -> Bool) {- ^ operation -} -> b -> b
 map f = case (f False, f True) of
   (False, False) -> \_ -> 0
   (False, True ) -> id
@@ -73,7 +73,7 @@ map f = case (f False, f True) of
 --   thus the operation provided must be total.
 --
 {-# INLINE zipWith #-}
-zipWith :: Bits b => (Bool -> Bool -> Bool) {- ^ operation -} -> b -> b -> b
+zipWith :: (Num b, Bits b) => (Bool -> Bool -> Bool) {- ^ operation -} -> b -> b -> b
 zipWith f = case (f False False, f False True, f True False, f True True) of
   (False, False, False, False) -> \_ _ -> 0
   (False, False, False, True ) -> (.&.)
@@ -96,27 +96,27 @@ zipWith f = case (f False False, f False True, f True False, f True True) of
 
 -- | True when any bit is set.
 {-# INLINE or #-}
-or  :: Bits b => b -> Bool
+or  :: (Num b, Bits b) => b -> Bool
 or  b = b /= 0
 
 -- | True when all bits are set.
 {-# INLINE and #-}
-and :: Bits b => b -> Bool
+and :: (Num b, Bits b) => b -> Bool
 and b = b == complement 0
 
 -- | True when the predicate is true for any bit.
 {-# INLINE any #-}
-any :: Bits b => (Bool -> Bool) {- ^ predicate -} -> b -> Bool
+any :: (Num b, Bits b) => (Bool -> Bool) {- ^ predicate -} -> b -> Bool
 any f = or  . map f
 
 -- | True when the predicate is true for all bits.
 {-# INLINE all #-}
-all :: Bits b => (Bool -> Bool) {- ^ predicate -} -> b -> Bool
+all :: (Num b, Bits b) => (Bool -> Bool) {- ^ predicate -} -> b -> Bool
 all f = and . map f
 
 -- | Determine if a 'Bits' is all 1s, all 0s, or neither.
 {-# INLINE isUniform #-}
-isUniform :: Bits b => b -> Maybe Bool
+isUniform :: (Num b, Bits b) => b -> Maybe Bool
 isUniform b
   | b == 0            = Just False
   | b == complement 0 = Just True
@@ -124,19 +124,19 @@ isUniform b
 
 -- | A mask with count least significant bits set.
 {-# INLINE mask #-}
-mask :: Bits b => Int {- ^ count -} -> b
+mask :: (Num b, Bits b) => Int {- ^ count -} -> b
 mask n = bit n - bit 0
 
 -- | Split a word into (lsb, msb).  Ensures lsb has no set bits
 --   above the split point.
 {-# INLINE splitAt #-}
-splitAt :: Bits b => Int {- ^ split point -} -> b {- ^ word -} -> (b, b) {- ^ (lsb, msb) -}
+splitAt :: (Num b, Bits b) => Int {- ^ split point -} -> b {- ^ word -} -> (b, b) {- ^ (lsb, msb) -}
 splitAt n b = (b .&. mask n, b `shiftR` n)
 
 -- | Join lsb with msb to make a word.  Assumes lsb has no set bits
 --   above the join point.
 {-# INLINE joinAt #-}
-joinAt :: Bits b => Int {- ^ join point -} -> b {- ^ least significant bits -} -> b {- ^ most significant bits -} -> b {- ^ word -}
+joinAt :: (Num b, Bits b) => Int {- ^ join point -} -> b {- ^ least significant bits -} -> b {- ^ most significant bits -} -> b {- ^ word -}
 joinAt n lsb msb = lsb .|. (msb `shiftL` n)
 
 -- | Pack bits into a byte in little-endian order.
@@ -165,13 +165,13 @@ unpackWord8BE w = (b 128, b 64, b 32, b 16, b 8, b 4, b 2, b 1)
 
 -- | The least significant bit.
 {-# INLINE fromBool #-}
-fromBool :: Bits b => Bool -> b
+fromBool :: (Num b, Bits b) => Bool -> b
 fromBool False = 0
 fromBool True  = bit 0
 
 -- | Convert a little-endian list of bits to 'Bits'.
 {-# INLINE fromListLE #-}
-fromListLE :: Bits b => [Bool] {- ^ \[least significant bit, ..., most significant bit\] -} -> b
+fromListLE :: (Num b, Bits b) => [Bool] {- ^ \[least significant bit, ..., most significant bit\] -} -> b
 fromListLE = foldr f 0
   where
     f b i = fromBool b .|. (i `shiftL` 1)
@@ -179,12 +179,12 @@ fromListLE = foldr f 0
 -- | Convert a 'Bits' (with a defined 'bitSize') to a list of bits, in
 --   little-endian order.
 {-# INLINE toListLE #-}
-toListLE :: Bits b => b -> [Bool] {- ^ \[least significant bit, ..., most significant bit\] -}
+toListLE :: (Num b, Bits b) => b -> [Bool] {- ^ \[least significant bit, ..., most significant bit\] -}
 toListLE b = P.map (testBit b) [0 .. bitSize b - 1]
 
 -- | Convert a big-endian list of bits to 'Bits'.
 {-# INLINE fromListBE #-}
-fromListBE :: Bits b => [Bool] {- ^ \[most significant bit, ..., least significant bit\] -} -> b
+fromListBE :: (Num b, Bits b) => [Bool] {- ^ \[most significant bit, ..., least significant bit\] -} -> b
 fromListBE = foldl' f 0
   where
     f i b = (i `shiftL` 1) .|. fromBool b
@@ -192,5 +192,5 @@ fromListBE = foldl' f 0
 -- | Convert a 'Bits' (with a defined 'bitSize') to a list of bits, in
 --   big-endian order.
 {-# INLINE toListBE #-}
-toListBE :: Bits b => b -> [Bool] {- ^ \[most significant bit, ..., least significant bit\] -}
+toListBE :: (Num b, Bits b) => b -> [Bool] {- ^ \[most significant bit, ..., least significant bit\] -}
 toListBE b = P.map (testBit b) [bitSize b - 1, bitSize b - 2 .. 0]
