@@ -1,5 +1,5 @@
 Name:                bitwise
-Version:             0.1
+Version:             0.1.0.1
 Synopsis:            fast multi-dimensional unboxed bit packed Bool arrays
 Description:
   Unboxed multidimensional bit packed Bool arrays with fast aggregate
@@ -92,7 +92,7 @@ Test-Suite bitwise-testsuite
   type:    exitcode-stdio-1.0
   main-is: extra/testsuite.hs
   build-depends:
-    bitwise == 0.1,
+    bitwise == 0.1.0.1,
     base >= 2 && < 6,
     QuickCheck >= 2.4 && < 2.5
 
@@ -100,7 +100,7 @@ Benchmark bitwise-benchmark
   type:   exitcode-stdio-1.0
   main-is: extra/benchmark.hs
   build-depends:
-    bitwise == 0.1,
+    bitwise == 0.1.0.1,
     base >= 2 && < 6,
     array,
     bytestring,
@@ -113,4 +113,4 @@ source-repository head
 source-repository this
   type:     git
   location: git://gitorious.org/bitwise/bitwise.git
-  tag:      v0.1
+  tag:      v0.1.0.1
