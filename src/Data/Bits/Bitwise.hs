@@ -4,7 +4,7 @@ Module      :  Data.Bits.Bitwise
 Copyright   :  (c) Claude Heiland-Allen 2012
 License     :  BSD3
 
-Maintainer  :  claudiusmaximus@goto10.org
+Maintainer  :  claude@mathr.co.uk
 Stability   :  unstable
 Portability :  portable
 
